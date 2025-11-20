@@ -24,17 +24,17 @@ from pySmartDL import SmartDL
 from .. import all, everyone, owner, sudo_users
 from .database.access_db import db
 from .display_progress import progress_for_url
-from .ffmpeg import encode, extract_subs
+from .encoding import encode, extract_subs
 from .uploads import upload_worker
 
 output = InlineKeyboardMarkup([
     [InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/veldxd"),
-     InlineKeyboardButton("ʟᴜᴄʏ", url="https://lucy_filter_bot")]
+     InlineKeyboardButton("ʟᴜᴄʏ", url="https://t.me/lucy_filter_bot")]
 ])
 
 start_but = InlineKeyboardMarkup([
     [InlineKeyboardButton("sᴛᴀᴛs", callback_data="stats"), InlineKeyboardButton("Settings", callback_data="OpenSettings")],
-    [InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/veldxd"), InlineKeyboardButton("ʟᴜᴄʏ", url="https://lucy_filter_bot")]])
+    [InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ", url="https://t.me/veldxd"), InlineKeyboardButton("ʟᴜᴄʏ", url="https://t.me/lucy_filter_bot")]])
 
 
 async def check_chat(message, chat):

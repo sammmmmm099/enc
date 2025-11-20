@@ -22,8 +22,13 @@ import math
 import os
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
-from signal import SIG_DFL, SIGPIPE, signal
+from signal import SIG_DFL, signal
 from typing import Any, Callable
+
+try:
+    from signal import SIGPIPE
+except ImportError:
+    SIGPIPE = None
 
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
@@ -33,7 +38,8 @@ from .... import download_dir as dir
 from ...display_progress import TimeFormatter, humanbytes
 from . import G_DRIVE_DIR_MIME_TYPE, DriveAPI, _get_file_id
 
-signal(SIGPIPE, SIG_DFL)
+if SIGPIPE:
+    signal(SIGPIPE, SIG_DFL)
 
 
 class Downloader(DriveAPI):
@@ -125,7 +131,7 @@ class Downloader(DriveAPI):
                     progress = downloaded / f_size * 100
                     speed = round(downloaded / diff, 2)
                     eta = round((f_size - downloaded) / speed)
-                    text = "Downloading: <code>{}</code>\n[{}{}]\n • Completed: {}\{} • ETA: {}\n • Speed: {}/s  • Size: {}"
+                    text = "Downloading: <code>{}</code>\n[{}{}]\n • Completed: {}/{} • ETA: {}\n • Speed: {}/s  • Size: {}"
                     self._progress = text.format(
                         self._name,
                         "".join(("█"

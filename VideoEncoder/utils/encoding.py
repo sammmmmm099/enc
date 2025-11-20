@@ -43,7 +43,7 @@ def get_codec(filepath, channel='v:0'):
 async def extract_subs(filepath, msg, user_id):
 
     path, extension = os.path.splitext(filepath)
-    name = path.split('/')
+    name = os.path.basename(path)
     check = get_codec(filepath, channel='s:0')
     if check == []:
         return None
@@ -63,19 +63,19 @@ async def encode(filepath, message, msg):
 
     ex = await db.get_extensions(message.from_user.id)
     path, extension = os.path.splitext(filepath)
-    name = path.split('/')
+    name = os.path.basename(path)
 
     if ex == 'MP4':
-        output_filepathh = encode_dir + name[len(name)-1] + '.mp4'
+        output_filepathh = os.path.join(encode_dir, name + '.mp4')
     elif ex == 'AVI':
-        output_filepathh = encode_dir + name[len(name)-1] + '.avi'
+        output_filepathh = os.path.join(encode_dir, name + '.avi')
     else:
-        output_filepathh = encode_dir + name[len(name)-1] + '.mkv'
+        output_filepathh = os.path.join(encode_dir, name + '.mkv')
 
     output_filepath = output_filepathh
-    subtitles_path = encode_dir + str(msg.id) + '.ass'
+    subtitles_path = os.path.join(encode_dir, str(msg.id) + '.ass')
 
-    progress = download_dir + "process.txt"
+    progress = os.path.join(download_dir, "process.txt")
     with open(progress, 'w') as f:
         pass
 
@@ -340,7 +340,8 @@ def get_thumbnail(in_filename, path, ttl):
             .run(capture_stdout=True, capture_stderr=True)
         )
         return out_filename
-    except ffmpeg.Error as e:
+    except Exception as e:
+        LOGGER.warning(f"Thumbnail generation failed: {e}")
         return None
 
 
@@ -373,8 +374,8 @@ async def media_info(saved_file_path):
     )
     stdout, stderr = process.communicate()
     output = stdout.decode().strip()
-    duration = re.search("Duration:\s*(\d*):(\d*):(\d+\.?\d*)[\s\w*$]", output)
-    bitrates = re.search("bitrate:\s*(\d+)[\s\w*$]", output)
+    duration = re.search(r"Duration:\s*(\d*):(\d*):(\d+\.?\d*)[\s\w*$]", output)
+    bitrates = re.search(r"bitrate:\s*(\d+)[\s\w*$]", output)
 
     if duration is not None:
         hours = int(duration.group(1))
@@ -414,10 +415,10 @@ async def handle_progress(proc, msg, message, filepath):
         await asyncio.sleep(5)
         with open(download_dir + 'process.txt', 'r+') as file:
             text = file.read()
-            frame = re.findall("frame=(\d+)", text)
-            time_in_us = re.findall("out_time_ms=(\d+)", text)
-            progress = re.findall("progress=(\w+)", text)
-            speed = re.findall("speed=(\d+\.?\d*)", text)
+            frame = re.findall(r"frame=(\d+)", text)
+            time_in_us = re.findall(r"out_time_ms=(\d+)", text)
+            progress = re.findall(r"progress=(\w+)", text)
+            speed = re.findall(r"speed=(\d+\.?\d*)", text)
             if len(frame):
                 frame = int(frame[-1])
             else:
