@@ -43,7 +43,7 @@ def get_codec(filepath, channel='v:0'):
 async def extract_subs(filepath, msg, user_id):
 
     path, extension = os.path.splitext(filepath)
-    name = path.split('/')
+    name = os.path.basename(path)
     check = get_codec(filepath, channel='s:0')
     if check == []:
         return None
@@ -63,19 +63,19 @@ async def encode(filepath, message, msg):
 
     ex = await db.get_extensions(message.from_user.id)
     path, extension = os.path.splitext(filepath)
-    name = path.split('/')
+    name = os.path.basename(path)
 
     if ex == 'MP4':
-        output_filepathh = encode_dir + name[len(name)-1] + '.mp4'
+        output_filepathh = os.path.join(encode_dir, name + '.mp4')
     elif ex == 'AVI':
-        output_filepathh = encode_dir + name[len(name)-1] + '.avi'
+        output_filepathh = os.path.join(encode_dir, name + '.avi')
     else:
-        output_filepathh = encode_dir + name[len(name)-1] + '.mkv'
+        output_filepathh = os.path.join(encode_dir, name + '.mkv')
 
     output_filepath = output_filepathh
-    subtitles_path = encode_dir + str(msg.id) + '.ass'
+    subtitles_path = os.path.join(encode_dir, str(msg.id) + '.ass')
 
-    progress = download_dir + "process.txt"
+    progress = os.path.join(download_dir, "process.txt")
     with open(progress, 'w') as f:
         pass
 
