@@ -373,8 +373,8 @@ async def media_info(saved_file_path):
     )
     stdout, stderr = process.communicate()
     output = stdout.decode().strip()
-    duration = re.search("Duration:\s*(\d*):(\d*):(\d+\.?\d*)[\s\w*$]", output)
-    bitrates = re.search("bitrate:\s*(\d+)[\s\w*$]", output)
+    duration = re.search(r"Duration:\s*(\d*):(\d*):(\d+\.?\d*)[\s\w*$]", output)
+    bitrates = re.search(r"bitrate:\s*(\d+)[\s\w*$]", output)
 
     if duration is not None:
         hours = int(duration.group(1))
@@ -414,10 +414,10 @@ async def handle_progress(proc, msg, message, filepath):
         await asyncio.sleep(5)
         with open(download_dir + 'process.txt', 'r+') as file:
             text = file.read()
-            frame = re.findall("frame=(\d+)", text)
-            time_in_us = re.findall("out_time_ms=(\d+)", text)
-            progress = re.findall("progress=(\w+)", text)
-            speed = re.findall("speed=(\d+\.?\d*)", text)
+            frame = re.findall(r"frame=(\d+)", text)
+            time_in_us = re.findall(r"out_time_ms=(\d+)", text)
+            progress = re.findall(r"progress=(\w+)", text)
+            speed = re.findall(r"speed=(\d+\.?\d*)", text)
             if len(frame):
                 frame = int(frame[-1])
             else:

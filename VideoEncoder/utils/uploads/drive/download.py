@@ -125,7 +125,7 @@ class Downloader(DriveAPI):
                     progress = downloaded / f_size * 100
                     speed = round(downloaded / diff, 2)
                     eta = round((f_size - downloaded) / speed)
-                    text = "Downloading: <code>{}</code>\n[{}{}]\n • Completed: {}\{} • ETA: {}\n • Speed: {}/s  • Size: {}"
+                    text = "Downloading: <code>{}</code>\n[{}{}]\n • Completed: {}/{} • ETA: {}\n • Speed: {}/s  • Size: {}"
                     self._progress = text.format(
                         self._name,
                         "".join(("█"
