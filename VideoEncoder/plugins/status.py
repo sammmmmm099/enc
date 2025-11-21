@@ -16,6 +16,38 @@ def get_readable_time(seconds):
 def get_readable_file_size(size):
     return humanbytes(size)
 
+def get_task_info(task_msg):
+    user = task_msg.from_user.first_name if task_msg.from_user else "Unknown User"
+    user_id = task_msg.from_user.id if task_msg.from_user else "No ID"
+
+    task_type = "Unknown Task"
+    filename = "Unknown File"
+
+    text_content = task_msg.text or task_msg.caption
+    if text_content:
+        parts = text_content.split(None, 1)
+        cmd = parts[0].lower()
+        if '/dl' in cmd:
+            task_type = "Telegram Download"
+        elif '/af' in cmd:
+            task_type = "Audio Processing"
+        elif '/ddl' in cmd:
+            task_type = "Direct Download"
+        elif '/batch' in cmd:
+            task_type = "Batch Process"
+
+    if task_msg.document:
+        filename = task_msg.document.file_name or "Document"
+        if task_type == "Unknown Task": task_type = "Telegram Download"
+    elif task_msg.video:
+        filename = task_msg.video.file_name or "Video"
+        if task_type == "Unknown Task": task_type = "Telegram Download"
+    elif text_content and ('/ddl' in text_content or '/batch' in text_content):
+        # Attempt to extract filename or url
+        filename = "URL Task"
+
+    return f"{task_type}: {filename}\n   └ User: <a href='tg://user?id={user_id}'>{user}</a>"
+
 @app.on_message(filters.command("status"))
 async def mirror_status(client, message: Message):
     c = await check_chat(message, chat='Both')
@@ -42,19 +74,8 @@ async def mirror_status(client, message: Message):
 
     if count:
         msg += f"<b>Active Tasks:</b> {count}\n"
-        # Since we don't have detailed task objects in 'data', we list queue items
         for i, task_msg in enumerate(data):
-             # Try to infer what the task is
-             info = "Unknown Task"
-             if task_msg.text:
-                 info = task_msg.text[:50] + "..." if len(task_msg.text) > 50 else task_msg.text
-             elif task_msg.caption:
-                 info = task_msg.caption[:50] + "..." if len(task_msg.caption) > 50 else task_msg.caption
-             elif task_msg.document:
-                 info = task_msg.document.file_name
-             elif task_msg.video:
-                 info = task_msg.video.file_name
-
+             info = get_task_info(task_msg)
              msg += f"{i+1}. {info}\n"
     else:
         msg += "No Active Downloads!\n"
@@ -92,16 +113,7 @@ async def status_pages(client, query: CallbackQuery):
         if count:
             msg += f"<b>Active Tasks:</b> {count}\n"
             for i, task_msg in enumerate(data):
-                 info = "Unknown Task"
-                 if task_msg.text:
-                     info = task_msg.text[:50] + "..." if len(task_msg.text) > 50 else task_msg.text
-                 elif task_msg.caption:
-                     info = task_msg.caption[:50] + "..." if len(task_msg.caption) > 50 else task_msg.caption
-                 elif task_msg.document:
-                     info = task_msg.document.file_name
-                 elif task_msg.video:
-                     info = task_msg.video.file_name
-
+                 info = get_task_info(task_msg)
                  msg += f"{i+1}. {info}\n"
         else:
             msg += "No Active Downloads!\n"
