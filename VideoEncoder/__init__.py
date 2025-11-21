@@ -123,4 +123,6 @@ app = Client(
     api_hash=api_hash,
     plugins={'root': os.path.join(__package__, 'plugins')},
     sleep_threshold=30,
-    max_concurrent_transmissions=4)
+    max_concurrent_transmissions=16,
+    workers=32,
+    ipv6=False)
