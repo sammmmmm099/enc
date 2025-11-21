@@ -52,7 +52,8 @@ class Database:
             resolution='OG',
             upload_as_doc=False,
             crf=22,
-            resize=False
+            resize=False,
+            thumbnail=None
         )
 
     async def add_user(self, id):
@@ -289,3 +290,11 @@ class Database:
 
     async def set_sudo(self, sudo):
         await self.col2.update_one({'id': 'sudo'}, {'$set': {'sudo_': sudo}})
+
+    # Thumbnail
+    async def set_thumbnail(self, id, thumbnail):
+        await self.col.update_one({'id': id}, {'$set': {'thumbnail': thumbnail}})
+
+    async def get_thumbnail(self, id):
+        user = await self.col.find_one({'id': int(id)})
+        return user.get('thumbnail', None)

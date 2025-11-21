@@ -84,8 +84,21 @@ async def handle_encode(filepath, message, msg):
         await msg.edit("<code>Video Encoded, getting metadata...</code>")
         link = await upload_worker(new_file, message, msg)
         await msg.edit('Video Encoded Successfully! Link: {}'.format(link))
+
+        # Immediate cleanup after upload
+        try:
+            os.remove(new_file)
+            os.remove(filepath)
+        except Exception:
+            pass
+
     else:
         await message.reply("<code>Something wents wrong while encoding your file.</code>")
+        try:
+            os.remove(filepath)
+        except Exception:
+            pass
+
     return link
 
 
