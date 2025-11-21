@@ -310,36 +310,39 @@ async def callback_handlers(bot: Client, cb: CallbackQuery):
 
     # Cancel
 
-    elif "cancel" in cb.data:
+    elif cb.data == "cancel":
         status = download_dir + "status.json"
-        with open(status, 'r+') as f:
-            statusMsg = json.load(f)
-            user = cb.from_user.id
-            if user != statusMsg['user']:
-                if user == 885190545:
+        try:
+            with open(status, 'r+') as f:
+                statusMsg = json.load(f)
+                user = cb.from_user.id
+                if user != statusMsg['user']:
+                    if user == 885190545:
+                        pass
+                    elif user in sudo_users or user in owner:
+                        pass
+                    else:
+                        return
+                statusMsg['running'] = False
+                f.seek(0)
+                json.dump(statusMsg, f, indent=2)
+                os.remove('VideoEncoder/utils/extras/downloads/process.txt')
+                try:
+                    await cb.message.edit_text("🚦🚦 Process Cancelled 🚦🚦")
+                    chat_id = log
+                    utc_now = datetime.datetime.utcnow()
+                    ist_now = utc_now + \
+                        datetime.timedelta(minutes=30, hours=5)
+                    ist = ist_now.strftime("%d/%m/%Y, %H:%M:%S")
+                    bst_now = utc_now + \
+                        datetime.timedelta(minutes=00, hours=6)
+                    bst = bst_now.strftime("%d/%m/%Y, %H:%M:%S")
+                    now = f"\n{ist} (GMT+05:30)`\n`{bst} (GMT+06:00)"
+                    await bot.send_message(chat_id, f"**Last Process Cancelled, Bot is Free Now !!** \n\nProcess Done at `{now}`", parse_mode="markdown")
+                except:
                     pass
-                elif user in sudo_users or user in owner:
-                    pass
-                else:
-                    return
-            statusMsg['running'] = False
-            f.seek(0)
-            json.dump(statusMsg, f, indent=2)
-            os.remove('VideoEncoder/utils/extras/downloads/process.txt')
-            try:
-                await cb.message.edit_text("🚦🚦 Process Cancelled 🚦🚦")
-                chat_id = log
-                utc_now = datetime.datetime.utcnow()
-                ist_now = utc_now + \
-                    datetime.timedelta(minutes=30, hours=5)
-                ist = ist_now.strftime("%d/%m/%Y, %H:%M:%S")
-                bst_now = utc_now + \
-                    datetime.timedelta(minutes=00, hours=6)
-                bst = bst_now.strftime("%d/%m/%Y, %H:%M:%S")
-                now = f"\n{ist} (GMT+05:30)`\n`{bst} (GMT+06:00)"
-                await bot.send_message(chat_id, f"**Last Process Cancelled, Bot is Free Now !!** \n\nProcess Done at `{now}`", parse_mode="markdown")
-            except:
-                pass
+        except FileNotFoundError:
+             await cb.answer("Nothing to cancel or process already finished!", show_alert=True)
 
     # Stats
     elif 'stats' in cb.data:
