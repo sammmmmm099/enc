@@ -8,6 +8,7 @@ from pyrogram.handlers import CallbackQueryHandler
 
 from ..utils.button_maker import ButtonMaker
 from ..utils.display_progress import TimeFormatter
+from .. import LOGGER
 
 class AudioSelect:
     def __init__(self, client, message):
@@ -22,9 +23,9 @@ class AudioSelect:
         self.stream_view_msg = None
 
     async def _event_waiter(self):
+        LOGGER.info("AudioSelect: Registering callback handler")
         # Register the handler
-        # Group -1 ensures it runs before other handlers if any overlap exists,
-        # though unique regex usually prevents overlap.
+        # Group -1 ensures it runs before other handlers if any overlap exists.
         handler = self.client.add_handler(
             CallbackQueryHandler(
                 self._cb_audiosel,
@@ -33,11 +34,15 @@ class AudioSelect:
             group=-1
         )
         try:
+            LOGGER.info("AudioSelect: Waiting for event")
             await wait_for(self.event.wait(), timeout=180)
+            LOGGER.info("AudioSelect: Event set or timeout reached")
         except asyncio.TimeoutError:
+            LOGGER.warning("AudioSelect: Timeout")
             self._is_cancelled = True
             self.event.set()
         finally:
+            LOGGER.info("AudioSelect: Removing callback handler")
             self.client.remove_handler(*handler)
 
     async def get_buttons(self, streams):
@@ -53,6 +58,7 @@ class AudioSelect:
                 }
 
         if not self.aud_streams or len(self.aud_streams) < 2:
+            LOGGER.info("AudioSelect: Not enough audio streams")
             return -1, -1
 
         # Start the event waiter task
@@ -75,6 +81,7 @@ class AudioSelect:
             await self.stream_view_msg.delete()
 
         maps = [i['map'] for i in self.aud_streams.values()]
+        LOGGER.info(f"AudioSelect: Returning maps {maps}")
         return maps, self.aud_streams
 
     async def _send_message(self):
@@ -106,6 +113,7 @@ class AudioSelect:
              self.stream_view_msg = await self.message.reply(text)
 
     async def _cb_audiosel(self, client, query: CallbackQuery):
+        LOGGER.info(f"AudioSelect: Received callback {query.data}")
         data = query.data.split()
         cmd = data[1]
 
@@ -127,14 +135,17 @@ class AudioSelect:
         try:
             target_idx = int(data[2])
         except (IndexError, ValueError):
+            LOGGER.error("AudioSelect: Invalid index in callback data")
             return
 
         aud_list = list(self.aud_streams.keys())
 
         if target_idx not in aud_list:
+            LOGGER.error(f"AudioSelect: Index {target_idx} not in aud_list {aud_list}")
             return
 
         pos = aud_list.index(target_idx)
+        LOGGER.info(f"AudioSelect: Processing {cmd} for index {target_idx} at pos {pos}")
 
         if cmd == 'swap':
             if pos != 0:
