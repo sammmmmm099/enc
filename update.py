@@ -8,7 +8,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 UPSTREAM_REPO = 'https://github.com/abhinai2244/Encoding-Bot.git'
-UPSTREAM_BRANCH = 'encode'
+UPSTREAM_BRANCH = 'audioswap'
 
 if UPSTREAM_REPO is not None:
     if ospath.exists('.git'):
