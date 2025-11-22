@@ -1,4 +1,5 @@
 # VideoEncoder Bot
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/sammmmmm099/enc)
 
 A powerful Telegram bot for compressing, encoding, and manipulating video files. Built with Python (Pyrofork) and FFmpeg.
 
